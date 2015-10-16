@@ -1,0 +1,9 @@
+{
+  "name": "LuaCombinator",
+  "version": "0.0.2",
+  "title": "LuaCombinator",
+  "author": "James O'Farrell",
+  "homepage": "",
+  "dependencies": ["base"],
+  "description": "For quick lua commands."
+}
