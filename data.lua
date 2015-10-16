@@ -151,7 +151,75 @@ data:extend({
     time_to_live = 30,
     speed = 0.0
   },
-    
+  
+   {
+    type = "flying-text",
+    name = "flying-text-banner-forever_lua",
+    flags = {"not-on-map"},
+    time_to_live = -1, --2147483647,
+    speed = 0.0
+  },
+  
+  {
+    type = "train-stop",
+    name = "train-stop-trans_lua",
+    icon = "__base__/graphics/icons/train-stop.png",
+    flags = {"placeable-neutral", "player-creation", "filter-directions"},
+    minable = {mining_time = 1, result = "train-stop"},
+    max_health = 150,
+    corpse = "medium-remnants",
+    collision_box = {{-0.5, -0.5}, {0.5, 0.5}},
+    selection_box = {{-0.6, -0.6}, {0.6, 0.6}},
+    drawing_box = {{-0.5, -3}, {0.5, 0.5}},
+    tile_width = 2,
+    tile_height = 2,
+    animation_ticks_per_frame = 20,
+    animations =
+    {
+      north =
+      {
+        filename = "__LuaCombinator__/trans.png",
+        priority = "high",
+        width = 0,
+        height = 0,
+        frame_count = 1,
+        shift = {1.65, -0.9}
+      },
+      east =
+      {
+        filename = "__LuaCombinator__/trans.png",
+        priority = "high",
+        width = 0,
+        height = 0,
+        frame_count = 1,
+        shift = {1.7, -1.5}
+      },
+      south =
+      {
+        filename = "__LuaCombinator__/trans.png",
+        priority = "high",
+        width = 0,
+        height = 0,
+        frame_count = 1,
+        shift = {1.7, -1.4}
+      },
+      west =
+      {
+        filename = "__LuaCombinator__/trans.png",
+        priority = "high",
+        width = 0,
+        height = 0,
+        frame_count = 1,
+        shift = {2, -0.8}
+      }
+    },
+    vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+    working_sound =
+    {
+      sound = { filename = "__base__/sound/train-stop.ogg", volume = 0.8 }
+    },
+	order = "zzz"
+  },
 })
 
 data.raw["gui-style"].default["wide_textbox_style_lua"] =

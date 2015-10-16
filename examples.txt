@@ -1,14 +1,30 @@
---Wagon Inventory detector (no loop, repeat, post)
-if (condition.value) then output:clear() for _,entity in pairs(entities) do ; if entity.name == "cargo-wagon" then inv = entity.get_inventory(1); for name,count in pairs(inv.get_contents()) do output:set_count("item",name,count); end end end elseif (not condition.value) then output:clear() end
+-- print entity names loop repeat
+player.print(entity.name)
 
---locomotive-detector (no loop, repeat, post)
-if (condition.value) then output:clear() for _,entity in pairs(entities) do if entity.name == "diesel-locomotive" then output:set_count("item","diesel-locomotive",1) end end else output:clear() end 
+
+--Wagon Inventory detector (no loop, repeat, post)
+if (lc:get_condition_value()) then lc:clear_items() for _,entity in pairs(entities) do if entity.name == "cargo-wagon" then inv = entity.get_inventory(1); for name,count in pairs(inv.get_contents()) do  lc:set_item_count("item",name,count); end end end elseif (not condition.value) then output:clear() end
+
+--locomotive-detector ( repeat, post, clear)
+lc:clear_items(); for _,entity in pairs(entities) do if entity.name == "diesel-locomotive" then lc:set_item_count("item","diesel-locomotive",1) end end
 
 --locomotive pause(loop, repeat, post)
 if entity.name == "diesel-locomotive" then entity.train.manual_mode = condition.value end
 
+-- locomotive next stop 
+if entity.name == "diesel-locomotive" and not entity.train.manual_mode then s = entity.train.schedule; i = 0; for _,r in pairs(s.records) do i = i + 1 end s.current = (s.current + 1) % i; entity.train.manual_mode = true;  entity.train.schedule = s; entity.train.manual_mode = false end
+
+--station banner
+if entity.name == "train-stop" and condition.value then entity.backer_name = "Ready for launch" elseif not condition.value then entity.backer_name = "" end
+
 --rocket launch (loop, repeat)
-if (entity.name == "rocket-silo") then player.print("lift off!"); entity.launch_rocket() end
+if (entity.name == "rocket-silo") and condition.value then if state.tick ~= nil and state.tick + 18000 < game.tick then player.print("lift off!"); entity.launch_rocket() elseif state.tick == nil then state.tick = game.tick; player.print("T-Minus 5 minutes") elseif state.tick + 18000 >= game.tick then output:set_count("virtual","signal-C", 300 - math.floor((game.tick - state.tick) / 60)) end elseif not condition.value and state.tick~= nil then state.tick = nil; output:clear() end
+
+-- rocket detector loop post
+output:clear(); for _,entity in pairs(entities) do if entity.name == "rocket-silo"  and entity.get_item_count("satellite") > 0 then output:set_count("item","rocket-silo",1) end end if not condition.value then output:clear() end
+
+-- rocket banner
+if condition.value and not state.banner then state.banner = banner("Ready for launch", output.entity.position, {r=1,g=0,b=0},player,true); player.print("Ready for launch") elseif not condition.value and is_valid(state.banner) then state.banner.destroy(); state.banner = nil; player.print("Life off!") end
 
 --Power detector (no loop, repeat, post)
 if (condition.value) then output:clear() for _,entity in pairs(entities) do if entity.type == "accumulator" then output:set_count("virtual","signal-E",math.floor(entity.energy/1000 + 0.5)) end end elseif not condition.value then output:clear() end
@@ -21,3 +37,12 @@ if entity.name == "gate" then entity.active = not condition.value end
 
 -- floating text (no loop, repeat, post)
 if condition.value then banner("Hello World", output.entity.position, {r=0,g=0,b=1},player) end
+
+-- robot usage output
+output:clear() if condition.value then if state.net == nil then state.net = output.entity.surface.find_logistic_network_by_position(output.entity.position,player.force.name) end if state.net then output:set_count("item","construction-robot",state.net.available_construction_robots); output:set_count("item","logistic-robot",state.net.available_logistic_robots) end end
+
+-- basic fluid detector
+if condition.value and entity.type == "pipe" and entity.fluidbox[1] and entity.fluidbox[1].amount < 1 then if not state.on then player.print("Fluid low"); state.on = true end banner("Fluid: " .. entity.fluidbox[1].amount, output.entity.position, {r=1,g=0,b=0},player) end
+
+--Banner, Power (post)
+if condition.value and not state.banner then state.banner = banner("Backup power online", output.entity.position, {r=1,g=0,b=0},player,true); player.print("Backup power online") elseif not condition.value and is_valid(state.banner) then state.banner.destroy(); state.banner = nil end
